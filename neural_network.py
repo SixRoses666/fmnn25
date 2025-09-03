@@ -5,6 +5,39 @@ import math
 def sigmoid(x: float) -> float:
     return 1 / (1 + math.exp(-x))
 
+class Neuron:
+
+    def __init__(self):
+        self.incoming: list[Edge] = []
+        self.outgoing: list[Edge] = []
+        self.output = None
+
+    def compute(self):
+        sum = 0
+        for edge in self.incoming:
+            sum += edge.weight * edge.parent.output
+        self.output = sigmoid(sum)
+        
+
+class Edge:
+
+    def __init__(self, parent: Neuron, child: Neuron):
+        self.parent = parent
+        self.child = child
+        self.weight = None
+        self.value = None
+
+class Layer:
+
+    def __init__(self, w: int, previous_layer: Layer | None):
+        self.neurons = [Neuron() for _ in range(w)]
+        if previous_layer:
+            for parent in previous_layer.neurons:
+                for neuron in self.neurons:
+                    edge = Edge(parent, neuron)
+                    parent.outgoing.append(edge)
+                    neuron.incoming.append(edge)
+                    
 class NeuralNetwork:
     
     def __init__(self, w_layers: list[int]):
@@ -30,38 +63,3 @@ class NeuralNetwork:
     def compute_layer(self, layer: list[Neuron]):
         for neuron in layer:
             neuron.compute()
-
-class Neuron:
-
-    def __init__(self):
-        self.incoming: list[Edge] = []
-        self.outgoing: list[Edge] = []
-        self.output = None
-
-    def compute(self):
-        sum = 0
-        for edge in self.incoming:
-            sum += edge.weight * edge.parent.output
-        self.output = sigmoid(sum)
-        
-Layer = list[Neuron]
-
-class Edge:
-
-    def __init__(self, parent: Neuron, child: Neuron):
-        self.parent = parent
-        self.child = child
-        self.weight = None
-        self.value = None
-
-class Layer:
-
-    def __init__(self, w: int, previous_layer: Layer | None):
-        self.neurons = [Neuron() for _ in range(w)]
-        if previous_layer:
-            for parent in previous_layer.neurons:
-                for neuron in self.neurons:
-                    edge = Edge(parent, neuron)
-                    parent.outgoing.append(edge)
-                    neuron.incoming.append(edge)
-                    
